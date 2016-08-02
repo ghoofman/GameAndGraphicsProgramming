@@ -30,32 +30,23 @@ add_external_opifex_includes()
 
 # Application Source Files
 # If you change the src folder or add another, you'll need to change it here
-add_source_group_recurse("${PROJECT_SOURCE_DIR}/src" APPLICATION_SRC)
-
+add_source_group_recurse("${PROJECT_SOURCE_DIR}/src" "" APPLICATION_SRC)
+add_asset_dir(APPLICATION_SRC)
 
 # Application BUILD
-if("${OPIFEX_OS}" STREQUAL "OPIFEX_IOS")
-    if(${OPIFEX_OPTION_SHARED})
-    	add_library(9_Application SHARED ${APPLICATION_SRC})
-    else()
-    	add_library(9_Application STATIC ${APPLICATION_SRC})
-    endif()
-    output_library_from_app(9_Application "GamedevGR")
-else()
-    add_executable(9_Application ${APPLICATION_SRC})
-endif()
+add_opifex_executable(GamedevGR ${APPLICATION_SRC})
 
-add_opifex_definitions(9_Application "")
+add_opifex_definitions(GamedevGR "")
 add_opifex_defines()
-set_target_properties(9_Application PROPERTIES OUTPUT_NAME "GamedevGR")
-add_opifex_libraries(9_Application)
-add_opifex_assets(9_Application)
+set_target_properties(GamedevGR PROPERTIES OUTPUT_NAME "GamedevGR")
+add_opifex_libraries(GamedevGR)
+add_opifex_assets(GamedevGR)
 
 if(${OPIFEX_OPTION_RELEASE})
   SET(BINARY_RELEASE_MODE "release")
 else()
   SET(BINARY_RELEASE_MODE "debug")
 endif()
-add_marketplace_addons(9_Application "${BINARY_RELEASE_MODE}/")
+add_marketplace_addons(GamedevGR "${BINARY_RELEASE_MODE}/")
 
 opifex_engine_status_messages()

@@ -10,5 +10,5 @@ void main() {
 	vec4 screenPos = uWorld * vec4(aPosition,1);
 	gl_Position = screenPos;
 	
-	vTexCoord = aUV; 
+	vTexCoord = vec2(aUV.x, 1.0 - aUV.y); 
 }

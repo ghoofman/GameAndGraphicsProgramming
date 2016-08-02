@@ -4,6 +4,7 @@
 #include "Main.h"
 #include "GameState.h"
 #include "Slides/01_Vectors.h"
+#include "Slides\Gimbal_Lock.h"
 
 #ifdef ADDON_imgui
 #include "OPimgui.h"
@@ -23,25 +24,46 @@ void ApplicationInit() {
 	OPrenderInit();
 
 	i32 contain = 50;
-	MainWindow = OPrenderCreateWindow(NULL, false, true, "GamedevGR", OPMONITOR_LIST[0].VideoModeCurrent.Width - contain - contain, OPMONITOR_LIST[0].VideoModeCurrent.Height - contain - contain);
-	MainWindow->SetPosition(OPMONITOR_LIST[0].X + contain, OPMONITOR_LIST[0].Y + contain);
+	i32 width = OPMONITOR_LIST[0].VideoModeCurrent.Width;
+	i32 height = OPMONITOR_LIST[0].VideoModeCurrent.Height;
 
+	/*width = 1280;
+	height = 720;*/
+	contain = 0;
+
+	i32 posX = OPMONITOR_LIST[0].X + (OPMONITOR_LIST[0].VideoModeCurrent.Width - width) / 2 + contain;
+	i32 posY = OPMONITOR_LIST[0].Y + (OPMONITOR_LIST[0].VideoModeCurrent.Height - height) / 2 + contain;
+
+	MainWindow = OPrenderCreateWindow(NULL, false, true, "GamedevGR", width - contain - contain, height - contain - contain);
+	MainWindow->SetPosition(posX, posY);
+
+#if RUN_SECONDARY_WINDOW
 	SecondaryWindow = OPrenderCreateWindow(NULL, false, true, "GamedevGR", OPMONITOR_LIST[1].VideoModeCurrent.Width - contain - contain, OPMONITOR_LIST[1].VideoModeCurrent.Height - contain - contain);
 	SecondaryWindow->SetPosition(OPMONITOR_LIST[1].X + contain, OPMONITOR_LIST[1].Y + contain);
 
-#ifdef ADDON_imgui
-	OPimguiInit(SecondaryWindow->Window, true);
+	#ifdef ADDON_imgui
+		OPimguiInit(SecondaryWindow->Window, true);
+	#endif
+
+	SecondaryWindow->Focus();
+#else
+
+	#ifdef ADDON_imgui
+		OPimguiInit(MainWindow, true);
+	#endif
 #endif
-
 	MainWindow->Bind();
-	MainWindow->Focus();
 
-	OPgameStateChange(&GS_01_VECTORS);
+	//OPgameStateChange(&GS_01_VECTORS);
+	OPgameStateChange(&GIMBAL_LOCK);
 }
 
 OPint ApplicationUpdate(OPtimer* timer) {
+#if RUN_SECONDARY_WINDOW
 	SecondaryWindow->Bind();
+	//SecondaryWindow->Focus();
 	OPrenderUpdate();
+#endif
 	OPinputSystemUpdate(timer);
 	if (OPkeyboardWasReleased(OPKEY_ESCAPE)) {
 		return 1;
@@ -71,13 +93,13 @@ void ApplicationSetup() {
 //////////////////////////////////////
 // Application Entry Point
 //////////////////////////////////////
-OP_MAIN {
+OP_MAIN_START
+
 	OP_LOG_LEVEL = 2000;
 	OPlog("Starting up OPifex Engine");
 
 	ApplicationSetup();
 
-	OP_MAIN_START
-	OP_MAIN_END
-	OP_MAIN_SUCCESS
-}
+	OP_MAIN_RUN
+
+OP_MAIN_END
